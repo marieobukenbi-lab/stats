@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="practice.css">
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-error-bars"></script>
+    <title>  Banana Lab Calculator </title>
+    <h1 class="martin"> Banana Lab Calculator</h1>
+</head>
+
+<table >
+   <thread>
+        <tr>
+            <th>Treatment</th>
+            <th>Count 1</th>
+            <th>Count 2</th>
+            <th>Count 3</th>
+            <th>Mean</th>
+            <th>S. Deviation</th>
+            <th> SEM +2 </th>
+        </tr>
+    </thread>
+    <tbody>
+        <tr>
+            <td><b>Green</b></td>
+            <td>
+                <form>
+                    <input type="number" id="green-count1" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="green-count2" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="green-count3" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <div id="green-mean">0</div>  
+            </td>
+            <td>
+                <div id="green-stddev">0</div>  
+            </td>
+            <td>
+                <div id="green-sem">0</div>  
+            </td>
+        </tr>
+         <tr>
+            <td><b>Ripe</b></td>
+            <td>
+                <form>
+                    <input type="number" id="ripe-count1" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="ripe-count2" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="ripe-count3" placeholder="Enter count">
+                </form>
+            </td>
+             <td>
+                <div id="ripe-mean">0</div>  
+            </td>
+            <td>
+                <div id="ripe-stddev">0</div>  
+            </td>
+            <td>
+                <div id="ripe-sem">0</div>  
+            </td>
+        </tr>
+         <tr>
+            <td><b>Overripe</b></td>
+            <td>
+                <form>
+                    <input type="number" id="overripe-count1" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="overripe-count2" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <form>
+                    <input type="number" id="overripe-count3" placeholder="Enter count">
+                </form>
+            </td>
+            <td>
+                <div id="overripe-mean">0</div>  
+            </td>
+            <td>
+                <div id="overripe-stddev">0</div>  
+            </td>
+            <td>
+                <div id="overripe-sem">0</div>  
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<button onclick="saveData()">Save Data</button>
+<button onclick="loadData()">Load Data</button>
+<button onclick="calculateStats()">Calculate</button>
+
+<div id="thegraph">
+    <canvas id="grapher" width="400" height="200"></canvas>
+</div>
+
+<script>
+    const greenCount1Input = document.getElementById('green-count1');
+    const greenCount2Input = document.getElementById('green-count2');
+    const greenCount3Input = document.getElementById('green-count3');
+    const ripeCount1Input = document.getElementById('ripe-count1');
+    const ripeCount2Input = document.getElementById('ripe-count2');
+    const ripeCount3Input = document.getElementById('ripe-count3');
+    const overripeCount1Input = document.getElementById('overripe-count1');
+    const overripeCount2Input = document.getElementById('overripe-count2');
+    const overripeCount3Input = document.getElementById('overripe-count3');
+    const greenMeanDiv = document.getElementById('green-mean');
+    const greenStddevDiv = document.getElementById('green-stddev');
+    const greenSemDiv = document.getElementById('green-sem');
+    const ripeMeanDiv = document.getElementById('ripe-mean');
+    const ripeStddevDiv = document.getElementById('ripe-stddev');
+    const ripeSemDiv = document.getElementById('ripe-sem');
+    const overripeMeanDiv = document.getElementById('overripe-mean');
+    const overripeStddevDiv = document.getElementById('overripe-stddev');
+    const overripeSemDiv = document.getElementById('overripe-sem');
+    const ctx = document.getElementById('grapher').getContext('2d')
+    let chart = null; // Declare chart variable in a broader scope
+
+    function calculateStats() {
+        // Calculate statistics for each category
+        const greenCounts = [
+            parseFloat(greenCount1Input.value) || 0,
+            parseFloat(greenCount2Input.value) || 0,
+            parseFloat(greenCount3Input.value) || 0
+        ];
+        const ripeCounts = [
+            parseFloat(ripeCount1Input.value) || 0,
+            parseFloat(ripeCount2Input.value) || 0,
+            parseFloat(ripeCount3Input.value) || 0
+        ];
+        const overripeCounts = [
+            parseFloat(overripeCount1Input.value) || 0,
+            parseFloat(overripeCount2Input.value) || 0,
+            parseFloat(overripeCount3Input.value) || 0
+        ];
+
+
+        // Function to calculate mean
+        function calculateMean(counts) {
+            const sum = counts.reduce((a, b) => a + b, 0);
+            return sum / counts.length;
+        }
+
+        // Calculate and display statistics
+        greenMeanDiv.textContent = calculateMean(greenCounts).toFixed(2);
+        ripeMeanDiv.textContent = calculateMean(ripeCounts).toFixed(2);
+        overripeMeanDiv.textContent = calculateMean(overripeCounts).toFixed(2);
+
+        // Function to calculate standard deviation
+        function calculateStdDev(counts, mean) {
+            const variance = counts.reduce((sum, count) => sum + Math.pow(count - mean, 2), 0) / (counts.length - 1);
+            return Math.sqrt(variance);
+        }
+
+        // Calculate and display standard deviations
+        greenStddevDiv.textContent = calculateStdDev(greenCounts, parseFloat(greenMeanDiv.textContent)).toFixed(2);
+        ripeStddevDiv.textContent = calculateStdDev(ripeCounts, parseFloat(ripeMeanDiv.textContent)).toFixed(2);
+        overripeStddevDiv.textContent = calculateStdDev(overripeCounts, parseFloat(overripeMeanDiv.textContent)).toFixed(2);
+
+        // Function to calculate standard error of the mean
+        function calculateSem(counts, stdDev) {
+            return (stdDev / Math.sqrt(counts.length))*2 ;
+        }
+
+        // Calculate and display standard errors
+        greenSemDiv.textContent = calculateSem(greenCounts, parseFloat(greenStddevDiv.textContent)).toFixed(2);
+        ripeSemDiv.textContent = calculateSem(ripeCounts, parseFloat(ripeStddevDiv.textContent)).toFixed(2);
+        overripeSemDiv.textContent = calculateSem(overripeCounts, parseFloat(overripeStddevDiv.textContent)).toFixed(2);
+
+        if (chart) {
+            chart.destroy(); // Destroy the previous chart instance if it exists
+        }
+
+        // Create a new chart instance
+    
+    chart = new Chart(ctx, {
+        type: 'barWithErrorBars',
+        data: {
+            labels: ['Green', 'Ripe', 'Overripe'],
+            datasets: [{
+                label: 'Mean Counts',
+                data: [{ y: parseFloat(greenMeanDiv.textContent) || 0,
+                        yMin: (parseFloat(greenMeanDiv.textContent) || 0) - (parseFloat(greenSemDiv.textContent) || 0),
+                        yMax: (parseFloat(greenMeanDiv.textContent) || 0) + (parseFloat(greenSemDiv.textContent) || 0)},
+                 { y: parseFloat(ripeMeanDiv.textContent) || 0,
+                   yMin: (parseFloat(ripeMeanDiv.textContent) || 0) - (parseFloat(ripeSemDiv.textContent) || 0),
+                   yMax: (parseFloat(ripeMeanDiv.textContent) || 0) + (parseFloat(ripeSemDiv.textContent) || 0)
+                 },
+                 { y: parseFloat(overripeMeanDiv.textContent) || 0,
+                   yMin: (parseFloat(overripeMeanDiv.textContent) || 0) - (parseFloat(overripeSemDiv.textContent) || 0),
+                   yMax: (parseFloat(overripeMeanDiv.textContent) || 0) + (parseFloat(overripeSemDiv.textContent) || 0)
+                 }],
+                backgroundColor: ['#85be43', '#f0b511', '#ff4e4e']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                
+                y: {
+                    beginAtZero: true
+                }
+                
+            }
+        }
+    });
+    }
+
+    function saveData() {
+        const data = {
+            green: [
+                parseFloat(greenCount1Input.value) || 0,
+                parseFloat(greenCount2Input.value) || 0,
+                parseFloat(greenCount3Input.value) || 0
+            ],
+            ripe: [
+                parseFloat(ripeCount1Input.value) || 0,
+                parseFloat(ripeCount2Input.value) || 0,
+                parseFloat(ripeCount3Input.value) || 0
+            ],
+            overripe: [
+                parseFloat(overripeCount1Input.value) || 0,
+                parseFloat(overripeCount2Input.value) || 0,
+                parseFloat(overripeCount3Input.value) || 0
+            ]
+        };
+
+        // Save data to local storage
+        localStorage.setItem('fruitData', JSON.stringify(data));
+        alert('Data saved successfully!');
+    }
+
+    function loadData() {
+        const data = JSON.parse(localStorage.getItem('fruitData'));
+        if (data) {
+            greenCount1Input.value = data.green[0];
+            greenCount2Input.value = data.green[1];
+            greenCount3Input.value = data.green[2];
+            ripeCount1Input.value = data.ripe[0];
+            ripeCount2Input.value = data.ripe[1];
+            ripeCount3Input.value = data.ripe[2];
+            overripeCount1Input.value = data.overripe[0];
+            overripeCount2Input.value = data.overripe[1];
+            overripeCount3Input.value = data.overripe[2];
+            calculateStats();
+        }
+    }
+
+    calculateStats();
+
+</script>
+
+
+</html>
